@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>WebSocket Test</h2>
+
+<button onclick="sendMessage()">Send Message</button>
+
+<script>
+let socket = new WebSocket("ws://localhost:3000");
+
+socket.onmessage = function(event) {
+    alert("Message from server: " + event.data);
+};
+
+function sendMessage() {
+    socket.send("HHHello Server!HU");
+}
+</script>
+
+</body>
+</html>
