@@ -103,15 +103,3 @@ int main() {
     }
     return EXIT_SUCCESS;
 }
-
-
-
-
-
-// #include <iostream>
-// #include <fmt/core.h>
-
-// int main(){
-//     std::cout << "KEK" << std::endl;
-//     return 0;
-// }
