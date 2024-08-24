@@ -24,7 +24,7 @@
 ### Константы шаговых двигателей
 
 # Сборка
-* Установка [vcpkg](https://learn.microsoft.com/ru-ru/vcpkg/get_started/get-started?pivots=shell-cmd), [cmake](https://cmake.org/download/), [msvc](https://visualstudio.microsoft.com/ru/downloads/)
+* Установка [vcpkg](https://learn.microsoft.com/ru-ru/vcpkg/get_started/get-started?pivots=shell-cmd), [cmake](https://cmake.org/download/), [msvc](https://visualstudio.microsoft.com/ru/downloads/), [llvm](https://github.com/llvm/llvm-project/releases/tag/llvmorg-18.1.8)
 * Установка зависимостей с помощью команды `vcpkg install` в дериктории проекта
 * mkdir build && cd build && cmake . && cmake --build .
 
