@@ -1,6 +1,7 @@
 {
   "dependencies": [
+    "boost-beast",
     "fmt",
-    "boost-beast"
+    "nlohmann-json"
   ]
 }

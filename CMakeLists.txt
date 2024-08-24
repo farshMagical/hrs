@@ -8,7 +8,9 @@ project(hrs)
 
 find_package(fmt CONFIG REQUIRED)
 find_package(boost_beast CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(server)
+add_subdirectory(client)
