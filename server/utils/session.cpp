@@ -1,16 +1,21 @@
 #include "session.h"
 
 #include <fmt/format.h>
+#include <format>
 #include <iostream>
+
+
+using namespace std;
 
 namespace ws {
 
-Session::Session(boost::asio::ip::tcp::socket socket) : ws_(std::move(socket)) {
-    fmt::print("ws constructor\n");
+Session::Session(boost::asio::ip::tcp::socket socket)
+    : wstream_(std::move(socket)) {
+    cout << format("Session const\n");
 }
 
 void Session::Run() {
-    ws_.async_accept(
+    wstream_.async_accept(
         beast::bind_front_handler(&Session::on_accept, shared_from_this()));
 }
 
@@ -19,13 +24,14 @@ void Session::on_accept(beast::error_code ec) {
         std::cerr << "Error on accept: " << ec.message() << std::endl;
         return;
     }
-    fmt::print("Reading\n");
+    cout << format("Reading\n");
     do_read();
 }
 
 void Session::do_read() {
-    ws_.async_read(buffer_, beast::bind_front_handler(&Session::on_read,
-                                                      shared_from_this()));
+    wstream_.async_read(buffer_, beast::bind_front_handler(&Session::on_read,
+                                                           shared_from_this()));
+    // wstream_.
 }
 
 void Session::on_read(beast::error_code ec, std::size_t bytes_transferred) {
@@ -35,7 +41,7 @@ void Session::on_read(beast::error_code ec, std::size_t bytes_transferred) {
     }
 
     // Эхо-ответ
-    ws_.async_write(
+    wstream_.async_write(
         buffer_.data(),
         beast::bind_front_handler(&Session::on_write, shared_from_this()));
 }

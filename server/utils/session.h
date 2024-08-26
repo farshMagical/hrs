@@ -18,7 +18,7 @@ class Session : public std::enable_shared_from_this<Session> {
     void on_read(beast::error_code ec, std::size_t bytes_transferred);
     void on_write(beast::error_code ec, std::size_t bytes_transferred);
 
-    beast::websocket::stream<boost::asio::ip::tcp::socket> ws_;
+    beast::websocket::stream<boost::asio::ip::tcp::socket> wstream_;
     beast::flat_buffer buffer_;
 };
 
