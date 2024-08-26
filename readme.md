@@ -39,3 +39,4 @@
 #### Ссылки
 * [Руководство по оформлению Markdown файлов](https://gist.github.com/Jekins/2bf2d0638163f1294637)
 * [NI FPGA guide](https://www.ni.com/docs/en-US/bundle/fpga-interface-c-api-ref/page/capi/fpgac.html) for c/c++ applications
+* [Advanced server example](https://www.boost.org/doc/libs/1_85_0/libs/beast/example/advanced/server/advanced_server.cpp)
