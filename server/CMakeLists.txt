@@ -7,6 +7,7 @@ set(CMAKE_BUILD_TYPE "Debug")
 set(SRC_DIRS
     ${CMAKE_SOURCE_DIR}/server
     ${CMAKE_SOURCE_DIR}/server/hrs
+    ${CMAKE_SOURCE_DIR}/server/hrs/calculation
     ${CMAKE_SOURCE_DIR}/server/utils
 )
 
