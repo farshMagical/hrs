@@ -151,14 +151,7 @@ handle_request(boost::beast::string_view doc_root,
     std::string path = path_cat(doc_root, req.target());
     if (req.target() == "/monitor") {
         boost::beast::http::string_body::value_type body1;
-        body1 = "BLYAAAA";
-
-        // boost::beast::http::response<boost::beast::http::string_body>
-        // res(boost::beast::http::status::ok, req.version());
-        // res.set(boost::beast::http::field::server,
-        // BOOST_BEAST_VERSION_STRING);
-        // res.set(boost::beast::http::field::content_type, mime_type(path));
-        // res.body() = "LOL"; res.prepare_payload(); return res;
+        body1 = "KEK";
 
         // Respond to GET request
         std::cout << "GET" << std::endl;
