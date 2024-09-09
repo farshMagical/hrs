@@ -1,10 +1,13 @@
 #include "core.hpp"
 
 #include "boost/asio/post.hpp"
+#include "nlohmann/json.hpp"
 #include "websocket_session.hpp"
 #include <chrono>
 #include <iostream>
 #include <vector>
+
+using json = nlohmann::json;
 
 Core &Core::GetCore() {
     static Core core;
@@ -22,7 +25,8 @@ void Core::loopFunction() {
                     boost::asio::post(*ioc_, [this, &session]() {
                         try {
                             // Here make packets with usefull data
-                            std::cout << session->write("kek") << std::endl;
+                            std::cout << session->write(getMonitorJson())
+                                      << std::endl;
                         } catch (const boost::system::system_error &e) {
                             std::cerr << "Error during write: " << e.what()
                                       << " (error mes: " << e.code() << ")\n";
@@ -47,4 +51,17 @@ void Core::setIOContext(boost::asio::io_context &ioc) {
     if (ioc_ == nullptr) {
         ioc_ = &ioc;
     }
+}
+
+std::string Core::getMonitorJson() {
+    json j;
+    j["mirror"]["connection"] = true;
+    j["mirror"]["position"] = 12.34;
+    j["mirror"]["limitSwitch"] = false;
+    j["mirror"]["status"] = "waiting";
+    j["grate"]["connection"] = false;
+    j["grate"]["position"] = 43.21;
+    j["grate"]["limitSwitch"] = false;
+    j["grate"]["status"] = "busy";
+    return j.dump();
 }

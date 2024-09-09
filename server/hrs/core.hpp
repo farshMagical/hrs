@@ -19,6 +19,8 @@ class Core {
   private:
     Core();
 
+    std::string getMonitorJson();
+
     void loopFunction();
 
     std::mutex mutex_;
