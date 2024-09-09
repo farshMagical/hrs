@@ -1,5 +1,6 @@
 #include "http_session.hpp"
 
+#include "core.hpp"
 #include "websocket_session.hpp"
 #include <iostream>
 
@@ -220,9 +221,10 @@ handle_request(boost::beast::string_view doc_root,
 }
 
 // Take ownership of the socket
-http_session::http_session(boost::asio::ip::tcp::socket &&socket,
+http_session::http_session(boost::asio::io_context &ioc,
+                           boost::asio::ip::tcp::socket &&socket,
                            std::shared_ptr<std::string const> const &doc_root)
-    : stream_(std::move(socket)), doc_root_(doc_root) {
+    : ioc_(ioc), stream_(std::move(socket)), doc_root_(doc_root) {
     static_assert(queue_limit > 0, "queue limit must be positive");
     response_queue_.reserve(queue_limit);
 }
@@ -264,11 +266,13 @@ void http_session::on_read(beast::error_code ec,
 
     // See if it is a WebSocket Upgrade
     if (boost::beast::websocket::is_upgrade(parser_->get())) {
-        std::cout << "try to WEBSOCKET" << std::endl;
         if (parser_->get().target() == "/monitor") {
-            std::cout << "WEBSOCKET" << std::endl;
-            std::make_shared<websocket_session>(stream_.release_socket())
-                ->do_accept(parser_->release());
+            auto &core = Core::GetCore();
+            auto ws_session = std::make_shared<websocket_session>(
+                ioc_, stream_.release_socket());
+            ws_session->do_accept(parser_->release());
+            core.setIOContext(ioc_);
+            core.setWebsockerSession(ws_session);
             return;
         }
     }

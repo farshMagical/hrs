@@ -18,6 +18,7 @@
 
 // Handles an HTTP server connection
 class http_session : public std::enable_shared_from_this<http_session> {
+    boost::asio::io_context &ioc_;
     boost::beast::tcp_stream stream_;
     boost::beast::flat_buffer buffer_;
     std::shared_ptr<std::string const> doc_root_;
@@ -33,7 +34,8 @@ class http_session : public std::enable_shared_from_this<http_session> {
 
   public:
     // Take ownership of the socket
-    http_session(boost::asio::ip::tcp::socket &&socket,
+    http_session(boost::asio::io_context &ioc,
+                 boost::asio::ip::tcp::socket &&socket,
                  std::shared_ptr<std::string const> const &doc_root);
 
     // Start the session

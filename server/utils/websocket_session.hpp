@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <boost/asio.hpp>
 #include <boost/asio/bind_executor.hpp>
 #include <boost/asio/dispatch.hpp>
 #include <boost/asio/signal_set.hpp>
@@ -16,13 +17,17 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <memory>
+#include <mutex>
+
+// todo add methods to write monitor's data
 
 // Echoes back all received WebSocket messages
 class websocket_session
     : public std::enable_shared_from_this<websocket_session> {
   public:
     // Take ownership of the socket
-    explicit websocket_session(boost::asio::ip::tcp::socket &&socket);
+    explicit websocket_session(boost::asio::io_context &ioc,
+                               boost::asio::ip::tcp::socket &&socket);
 
     // Start the asynchronous accept operation
     template <class Body, class Allocator>
@@ -47,6 +52,11 @@ class websocket_session
                                                   shared_from_this()));
     }
 
+    void do_write(std::string message);
+    size_t write(std::string message);
+    bool is_open();
+    void close();
+
   private:
     void on_accept(boost::beast::error_code ec);
     void do_read();
@@ -54,6 +64,10 @@ class websocket_session
     void on_write(boost::beast::error_code ec, std::size_t bytes_transferred);
 
   private:
+    boost::asio::io_context &ioc_;
     boost::beast::websocket::stream<boost::beast::tcp_stream> ws_;
     boost::beast::flat_buffer buffer_;
+
+    std::mutex ws_mutex_;
+    bool finished{false};
 };

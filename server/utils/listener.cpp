@@ -62,7 +62,7 @@ void listener::on_accept(beast::error_code ec, tcp::socket socket) {
         fail(ec, "accept");
     } else {
         // Create the http session and run it
-        std::make_shared<http_session>(std::move(socket), doc_root_)->run();
+        std::make_shared<http_session>(ioc_, std::move(socket), doc_root_)->run();
     }
 
     // Accept another connection

@@ -1,8 +1,13 @@
 #include <format>
 
+#include "core.hpp"
 #include "listener.hpp"
 
+
 int main(int argc, char *argv[]) {
+
+    Core::GetCore();
+
     auto const address = boost::asio::ip::make_address("127.0.0.1");
     auto const port = static_cast<unsigned short>(3000);
     auto const doc_root = std::make_shared<std::string>(".");
