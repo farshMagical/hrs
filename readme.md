@@ -21,15 +21,18 @@ HTTP POST - клиент отправляет управляющие коман�
     - Включение/выключение: `{"power":"on"}`, `{"power":"off"}`
     - Установка дисперсии: `{"dispersion":123.456}`
     - Установка длины волны: `{"lambda":123.456}`
+    - Проведение калибровки: `{"calibration":true}`
 * http://localhost:3000/control/manual 
     - Положение зеркала в градусах: `{"mirror":21.45}`
     - Положение решетки в градусах: `{"grate":21.45}`  
+    - Стоп: `{"stop": true}`  
   
-HTTP HEAD:
-* http://localhost:3000/control/calibration
-
 ### Формат отправляемых сервером пакетов
-`{"connection": true|false, "position": 12.34, "limitSwitch": true|false, "status": "waiting|busy|calibration|else"}`  
+`{"mirror":  
+  {"connection": true|false, "position": 12.34, "limitSwitch": true|false, "status": "waiting|busy|calibration|else"},  
+"grade":  
+{"connection": true|false, "position": 12.34, "limitSwitch": true|false, "status": "waiting|busy|calibration|else"}
+}`  
 Для передачи данных используется `json`, библиотека [nlohmann/json](https://github.com/nlohmann/json?tab=readme-ov-file#cmake).  
 
 ### Алгоритм калибровки
@@ -58,6 +61,9 @@ HTTP HEAD:
 Проверка корректного нахождения библиотеки NiFPGA.dll
 
 ## Логирование
+
+# Работа с сервером в ручном режиме
+Для формирования запросов можно использовать утилиты `curl` или `postman`.
 
 ### Ссылки
 * [Руководство по оформлению Markdown файлов](https://gist.github.com/Jekins/2bf2d0638163f1294637)
