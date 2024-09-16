@@ -9,6 +9,21 @@
 
 using json = nlohmann::json;
 
+std::string to_str(enum class Core::state state) {
+    switch (state) {
+    case Core::state::on:
+        return "on";
+    case Core::state::off:
+        return "off";
+    case Core::state::running:
+        return "running";
+    case Core::state::calibration:
+        return "calibration";
+    default:
+        return "wrong";
+    }
+}
+
 Core &Core::GetCore() {
     static Core core;
     return core;
@@ -25,8 +40,7 @@ void Core::loopFunction() {
                     boost::asio::post(*ioc_, [this, &session]() {
                         try {
                             // Here make packets with usefull data
-                            std::cout << session->write(getMonitorJson())
-                                      << std::endl;
+                            session->write(getMonitorJson());
                         } catch (const boost::system::system_error &e) {
                             std::cerr << "Error during write: " << e.what()
                                       << " (error mes: " << e.code() << ")\n";
@@ -65,3 +79,66 @@ std::string Core::getMonitorJson() {
     j["grate"]["status"] = "busy";
     return j.dump();
 }
+
+void Core::powerOff(Callback cb) {
+    std::lock_guard lock(state_mutex_);
+    if (transition_.contains({state_, state::off})) {
+        state_ = state::off;
+        std::cout << "[state] set off" << std::endl;
+        cb(std::nullopt);
+    } else {
+        std::cout << "[state] cant set off from " << to_str(state_)
+                  << std::endl;
+        cb("cant set off");
+    }
+}
+void Core::powerOn(Callback cb) {
+    std::lock_guard lock(state_mutex_);
+    if (transition_.contains({state_, state::on})) {
+        state_ = state::on;
+        std::cout << "[state] set on" << std::endl;
+        cb(std::nullopt);
+    } else {
+        std::cout << "[state] cant set on from " << to_str(state_) << std::endl;
+        cb("cant set on");
+    }
+}
+void Core::setDispersion(Callback cb, float value) {
+    std::lock_guard lock(state_mutex_);
+    if (transition_.contains({state_, state::running})) {
+        state_ = state::calibration;
+        std::cout << "[state] set calibration" << std::endl;
+        cb(std::nullopt);
+    } else {
+        std::cout << "[state] cant set calibration from " << to_str(state_)
+                  << std::endl;
+        cb("cant set calibration");
+    }
+}
+void Core::setLambda(Callback cb, float value) {}
+
+void Core::calibration(Callback cb) {
+    std::lock_guard lock(state_mutex_);
+    if (transition_.contains({state_, state::calibration})) {
+        state_ = state::calibration;
+        std::cout << "[state] set calibration" << std::endl;
+        cb(std::nullopt);
+    } else {
+        std::cout << "[state] cant set calibration from " << to_str(state_)
+                  << std::endl;
+        cb("cant set calibration");
+    }
+}
+
+void Core::stop(Callback cb) {
+    std::lock_guard lock(state_mutex_);
+    if (state_ == state::off) {
+        cb("state is already off");
+        return;
+    }
+    cb(std::nullopt);
+    // todo stop
+}
+
+void Core::setMirrorPosition(Callback cb) {}
+void Core::setGratePosition(Callback cb) {}
