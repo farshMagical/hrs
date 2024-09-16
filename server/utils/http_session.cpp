@@ -1,8 +1,14 @@
 #include "http_session.hpp"
 
 #include "core.hpp"
+#include "nlohmann/json.hpp"
 #include "websocket_session.hpp"
+#include <functional>
 #include <iostream>
+#include <string>
+#include <unordered_map>
+
+using json = nlohmann::json;
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http = beast::http;   // from <boost/beast/http.hpp>
@@ -139,7 +145,8 @@ handle_request(boost::beast::string_view doc_root,
 
     // Make sure we can handle the method
     if (req.method() != boost::beast::http::verb::get &&
-        req.method() != boost::beast::http::verb::head)
+        req.method() != boost::beast::http::verb::head &&
+        req.method() != boost::beast::http::verb::post)
         return bad_request("Unknown HTTP-method");
 
     // Request path must be absolute and not contain "..".
@@ -147,27 +154,43 @@ handle_request(boost::beast::string_view doc_root,
         req.target().find("..") != boost::beast::string_view::npos)
         return bad_request("Illegal request-target");
 
+    if (req.method() == boost::beast::http::verb::post) {
+        std::cout << "[post] target: " << req.target() << std::endl;
+        if (req.target() == "/control") {
+            // todo callback with answer - async handle
+            boost::beast::http::string_body::value_type body1;
+
+            json j_body = nlohmann::json::parse(req.body()); // todo catch exc
+            std::cout << "[info] " << j_body.dump() << std::endl;
+            if (j_body.contains("power")) {
+                std::cout << "[cmd] power is" << j_body["power"] << std::endl;
+            } else if (j_body.contains("calibration")) {
+                std::cout << "[cmd] calibration is" << j_body["calibration"]
+                          << std::endl;
+            } else if (j_body.contains("stop")) {
+                std::cout << "[cmd] stop" << std::endl;
+            }
+
+            boost::beast::http::response<boost::beast::http::string_body> res{
+                boost::beast::http::status::ok,
+                req.version(),
+            };
+            res.set(boost::beast::http::field::server,
+                    BOOST_BEAST_VERSION_STRING);
+            // res.set(boost::beast::http::field::content_type,
+            // mime_type(path));
+            res.set("key", "I am a header2");
+            res.body() = "Ans";
+            res.content_length(3);
+            res.keep_alive(req.keep_alive());
+            res.prepare_payload();
+            return res;
+        }
+        return bad_request("Bad HTTP POST");
+    }
+
     // Build the path to the requested file
     std::string path = path_cat(doc_root, req.target());
-    if (req.target() == "/control") {
-        boost::beast::http::string_body::value_type body1;
-        body1 = "KEK";
-
-        // Respond to GET request
-        std::cout << "GET" << std::endl;
-        boost::beast::http::response<boost::beast::http::string_body> res{
-            boost::beast::http::status::ok,
-            req.version(),
-        };
-        res.set(boost::beast::http::field::server, BOOST_BEAST_VERSION_STRING);
-        res.set(boost::beast::http::field::content_type, mime_type(path));
-        res.set("key", "I am a header2");
-        res.body() = "Ans";
-        res.content_length(body1.size());
-        res.keep_alive(req.keep_alive());
-        res.prepare_payload();
-        return res;
-    }
 
     // Attempt to open the file
     boost::beast::error_code ec;
